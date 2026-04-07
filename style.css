@@ -1,0 +1,29 @@
+.mainText {
+    text-align: center;
+    padding-bottom: 5em;
+    padding-top: 5em;
+}
+.start {
+    text-align: center;
+    border: 1px solid black;
+    padding: .5em;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.page {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    /* grid layout */
+    display: grid;
+    place-items: center;
+    /* vises først med klasen "show" */
+    position: fixed;
+    left: -100vw;
+    transition: all .6s ease-in-out;
+}
+
+.show {
+    left: 0;
+}

@@ -3,11 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>LunchBox</title>
     <link rel="stylesheet" href="style.css">
     <script src="scripts.js" defer></script>
 </head>
 <body>
+    <div class="page" id="page1">
+        <div class="mainText">
+            <h1>Welcome to LunchBox Games</h1>
+            <h2>Play with lunch is the best bunch!</h2>
+        </div>
+        <h1 class="start" onmousedown="shiftPage('#page2')">Start</h1>
+    </div>
+
+    <div class="page" id="page2">
+        <h3>What is your name?</h3>
+        <p type="comment"></p>
+        <h1 class="start" onmousedown="shiftPage('#page3')">Next</h1>
+    </div>
+
+    <div class="page" id="page3">
+        <h2>select your food!</h2>
+        <h2>picture</h2>
+        <h1 class="start" onmousedown="shiftPage('#page4')">Next</h1>
+    </div>
+    <div class="page" id="page4"></div>
+    
+    
+    
+
     
 </body>
 </html>
