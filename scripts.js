@@ -1,12 +1,25 @@
-var currentPage = '#page1'
+var currentPage = '1'
 
-shiftPage(currentPage)
+ImmediateshiftPage(currentPage)
 
 function shiftPage(newPage){
-    const Oldpage = document.querySelector(currentPage)
+    console.log('shifting page', newPage)
+    const Oldpage = document.querySelector('#page' + currentPage)
     Oldpage.classList.remove('show')
     currentPage = newPage
-    const nP = document.querySelector(currentPage)
+    setTimeout(() => {
+    const nP = document.querySelector('#page' + currentPage)
+    nP.classList.add('show')
+    }, 1000);
+    
+}
+
+function ImmediateshiftPage(newPage){
+    console.log('shifting page', newPage)
+    const Oldpage = document.querySelector('#page' + currentPage)
+    Oldpage.classList.remove('show')
+    currentPage = newPage
+    const nP = document.querySelector('#page' + currentPage)
     nP.classList.add('show')
     
 }
