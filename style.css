@@ -1,6 +1,6 @@
 .mainText {
     text-align: center;
-    padding-bottom: 5em;
+    padding-bottom: 0em;
     padding-top: 5em;
 }
 .start {
@@ -59,4 +59,8 @@ body {
         opacity: 1;
         scale: 1.07
     }
+}
+.name{
+    background-image: url(assets/Lunchbox-mascot.png);
+    background-size: 200;
 }

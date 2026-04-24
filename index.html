@@ -7,6 +7,10 @@
     <link rel="icon" type="image/x-icon" href="assets/Lunchbox-mascot.png">
     <link rel="stylesheet" href="style.css">
     <script src="scripts.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js"></script>
+    <script src="./firebase.js"></script>
 </head>
 <body>
     <div class="page" id="page1">
@@ -14,13 +18,26 @@
             <h1>Welcome to LunchBox Games</h1>
             <h2>Play with lunch is the best bunch!</h2>
         </div>
+        <img src="./assets/Lunchbox-mascot.png" alt="" height="200" width="200">
         <h1 class="start" onmousedown="shiftPage('2')">Start</h1>
         <img src="assets/Fruits-outline.png" alt="Fruits outline" class="outline">
     </div>
 
     <div class="page" id="page2">
-        <h3>What is your name?</h3>
-        <p type="comment"></p>
+        <div class="name">
+            <form>
+                <h1>What is your first name?</h1>
+                <input placeholder="Your litt name!" type="text"  id="userName">
+                <br><br>
+                <label for="PAC">Are you a parent?:</label>
+                <select name="PAC" id="PAC">
+                    <option value="parent">parent</option>
+                    <option value="DumbChild">I'm cooler then that</option>
+                </select>
+                <br><br>
+                <input type="submit" value="Submit" onclick="Submit()">
+            </form>
+        </div>
         <h1 class="start" onmousedown="shiftPage('3')">Next</h1>
     </div>
 
