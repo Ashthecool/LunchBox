@@ -6,46 +6,104 @@
     <title>LunchBox</title>
     <link rel="icon" type="image/x-icon" href="assets/Lunchbox-mascot.png">
     <link rel="stylesheet" href="style.css">
-    <script src="scripts.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js"></script>
     <script src="./firebase.js"></script>
+    <script src="scripts.js" defer></script>
 </head>
 <body>
+
+    <!-- PAGE 1: Landing -->
     <div class="page" id="page1">
         <div class="mainText">
             <h1>Welcome to LunchBox Games</h1>
             <h2>Play with lunch is the best bunch!</h2>
         </div>
         <img src="./assets/Lunchbox-mascot.png" alt="" height="200" width="200">
-        <h1 class="start" onmousedown="shiftPage('2')">Start</h1>
+        <div class="btn-row">
+            <h1 class="start" onmousedown="shiftPage('2')">Play 🎮</h1>
+            <h1 class="start parent-btn" onmousedown="shiftPage('5')">Parent 👨‍👩‍👧</h1>
+        </div>
         <img src="assets/Fruits-outline.png" alt="Fruits outline" class="outline">
     </div>
 
+    <!-- PAGE 2: Child selector -->
     <div class="page" id="page2">
-        <div class="name">
-            <form>
-                <h1>What is your first name?</h1>
-                <input placeholder="Your litt name!" type="text"  id="userName">
-                <br><br>
-                <label for="PAC">Are you a parent?:</label>
-                <select name="PAC" id="PAC">
-                    <option value="parent">parent</option>
-                    <option value="DumbChild">I'm cooler then that</option>
-                </select>
-                <br><br>
-                <input type="submit" value="Submit" onclick="Submit()">
-            </form>
+        <div class="child-select-wrap">
+            <h1>Who's playing? 🙋</h1>
+            <div id="child-list" class="child-list"></div>
+            <p class="hint">Ask a parent to add you if you're not here!</p>
+            <button class="cheat-btn" onclick="cheatChild()">🚧 Dev bypass</button>
         </div>
-        <h1 class="start" onmousedown="shiftPage('3')">Next</h1>
     </div>
 
+    <!-- PAGE 3: Game -->
     <div class="page" id="page3">
-        <h2>select your food!</h2>
-        <h2>picture</h2>
-        <h1 class="start" onmousedown="shiftPage('4')">Next</h1>
+        <div id="game-container"></div>
     </div>
-    <div class="page" id="page4"></div>
+
+    <!-- PAGE 4: End screen + shop -->
+    <div class="page" id="page4">
+        <div class="end-screen">
+            <h1 id="result-title">Game Over!</h1>
+            <h2 id="result-score">Score: 0</h2>
+            <h3 id="result-total-points"></h3>
+            <div id="reward-shop" class="reward-shop"></div>
+            <div class="btn-row">
+                <h1 class="start" onmousedown="playAgain()">Play Again 🔄</h1>
+                <h1 class="start" onmousedown="shiftPage('1')">Home 🏠</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 5: Parent login -->
+    <div class="page" id="page5">
+        <div class="auth-wrap">
+            <h1>Parent Login 🔐</h1>
+            <div id="auth-error" class="auth-error"></div>
+            <input type="email" id="auth-email" placeholder="Email">
+            <input type="password" id="auth-password" placeholder="Password">
+            <div class="btn-row">
+                <button class="auth-btn" onclick="parentLogin()">Log In</button>
+                <button class="auth-btn" onclick="parentSignup()">Sign Up</button>
+            </div>
+            <h1 class="start back-btn" onmousedown="shiftPage('1')">← Back</h1>
+            <button class="cheat-btn" onclick="cheatLogin()">🚧 Dev bypass</button>
+        </div>
+    </div>
+
+    <!-- PAGE 6: Parent dashboard -->
+    <div class="page" id="page6">
+        <div class="dashboard">
+            <div class="dash-header">
+                <h1>Parent Dashboard 🧑‍💼</h1>
+                <button class="auth-btn small" onclick="parentLogout()">Log out</button>
+            </div>
+
+            <!-- Children section -->
+            <div class="dash-section">
+                <h2>Children</h2>
+                <div id="dash-children" class="dash-children"></div>
+                <div class="add-row">
+                    <input type="text" id="new-child-name" placeholder="Child's name">
+                    <button class="auth-btn" onclick="addChild()">Add Child</button>
+                </div>
+            </div>
+
+            <!-- Rewards section -->
+            <div class="dash-section">
+                <h2>Rewards</h2>
+                <div id="dash-rewards" class="dash-rewards"></div>
+                <div class="add-row">
+                    <input type="text" id="new-reward-name" placeholder="Reward (e.g. Ice Cream)">
+                    <input type="number" id="new-reward-cost" placeholder="Points" min="1">
+                    <button class="auth-btn" onclick="addReward()">Add Reward</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
