@@ -59,7 +59,11 @@ window.addEventListener('load', function() {
     a.onAuthStateChanged(function(user) {
         if (user) {
             parentUID = user.uid
-            if (currentPage === '5') shiftPage('6')
+            // Redirect to dashboard on refresh if already logged in as parent
+            if (currentPage === '5' || currentPage === '1') {
+                ImmediateshiftPage('6')
+                loadDashboard()
+            }
         } else {
             parentUID = null
         }
@@ -70,6 +74,15 @@ window.addEventListener('load', function() {
 // ─────────────────────────────────────────────
 //  PARENT AUTH
 // ─────────────────────────────────────────────
+function goToParent() {
+    // If already logged in, skip login page and go straight to dashboard
+    if (parentUID) {
+        shiftPage('6')
+    } else {
+        shiftPage('5')
+    }
+}
+
 function parentLogin() {
     var a = getAuth()
     if (!a) return alert('Firebase not ready')
@@ -88,6 +101,18 @@ function parentSignup() {
     a.createUserWithEmailAndPassword(email, pass)
         .then(function(cred) {
             parentUID = cred.user.uid
+            shiftPage('6')
+        })
+        .catch(function(e) { showAuthError(e.message) })
+}
+
+function googleLogin() {
+    var a = getAuth()
+    if (!a) return alert('Firebase not ready')
+    var provider = new firebase.auth.GoogleAuthProvider()
+    a.signInWithPopup(provider)
+        .then(function(result) {
+            parentUID = result.user.uid
             shiftPage('6')
         })
         .catch(function(e) { showAuthError(e.message) })
@@ -488,44 +513,142 @@ function loadRewardShop(container, totalPoints) {
     var d = getDB()
     if (!d || !currentChild || !currentChild.parentUID) return
 
-    d.collection('rewards').where('parentUID', '==', currentChild.parentUID).orderBy('cost').get().then(function(snap) {
-        if (snap.empty) {
-            container.innerHTML = '<p class="hint">No rewards yet — ask a parent to add some!</p>'
-            return
-        }
-        var title = document.createElement('h2')
-        title.textContent = '🛒 Reward Shop'
-        container.appendChild(title)
+    // Load wishlist alongside rewards so we can cross-reference
+    d.collection('children').doc(currentChild.id).get().then(function(childDoc) {
+        var wishlist = (childDoc.exists && childDoc.data().wishlist) ? childDoc.data().wishlist : []
 
-        snap.forEach(function(doc) {
-            var r = doc.data()
-            var card = document.createElement('div')
-            card.className = 'reward-card' + (totalPoints >= r.cost ? '' : ' locked')
-            card.innerHTML =
-                '<span class="reward-name">' + r.name + '</span>' +
-                '<span class="reward-cost">' + r.cost + ' pts</span>' +
-                (totalPoints >= r.cost
-                    ? '<button class="redeem-btn" onclick="redeemReward(\'' + doc.id + '\',\'' + r.name + '\',' + r.cost + ')">Redeem!</button>'
-                    : '<span class="reward-locked">🔒 Need ' + (r.cost - totalPoints) + ' more</span>')
-            container.appendChild(card)
+        d.collection('rewards').where('parentUID', '==', currentChild.parentUID).orderBy('cost').get().then(function(snap) {
+            if (snap.empty) {
+                container.innerHTML = '<p class="hint">No rewards yet — ask a parent to add some!</p>'
+                return
+            }
+
+            var rewards = []
+            snap.forEach(function(doc) {
+                var r = doc.data()
+                rewards.push({ id: doc.id, name: r.name, cost: r.cost })
+            })
+
+            renderPodiumShop(container, rewards, totalPoints, wishlist)
+        })
+    }).catch(function() {
+        // Fallback: load rewards without wishlist
+        d.collection('rewards').where('parentUID', '==', currentChild.parentUID).orderBy('cost').get().then(function(snap) {
+            if (snap.empty) {
+                container.innerHTML = '<p class="hint">No rewards yet — ask a parent to add some!</p>'
+                return
+            }
+            var rewards = []
+            snap.forEach(function(doc) {
+                var r = doc.data()
+                rewards.push({ id: doc.id, name: r.name, cost: r.cost })
+            })
+            renderPodiumShop(container, rewards, totalPoints, [])
         })
     })
+}
+
+function renderPodiumShop(container, rewards, totalPoints, wishlist) {
+    container.innerHTML = ''
+
+    var header = document.createElement('div')
+    header.className = 'shop-header'
+    header.innerHTML = '<span class="shop-title">🏪 Reward Market</span><span class="shop-pts-badge">⭐ ' + totalPoints + ' pts</span>'
+    container.appendChild(header)
+
+    var maxCost = Math.max.apply(null, rewards.map(function(r){ return r.cost }))
+    var minCost = Math.min.apply(null, rewards.map(function(r){ return r.cost }))
+
+    var stage = document.createElement('div')
+    stage.className = 'podium-stage'
+
+    // Sort: medium priced in middle, cheapest on sides for visual balance
+    // Actually: sort by cost ascending so tallness reads left to right, then re-arrange
+    var sorted = rewards.slice().sort(function(a,b){ return a.cost - b.cost })
+
+    sorted.forEach(function(r, idx) {
+        var canAfford = totalPoints >= r.cost
+        var isWished  = wishlist.some(function(w){ return w.toLowerCase().trim() === r.name.toLowerCase().trim() })
+
+        // Podium height: map cost to a range of 60px (min) to 130px (max)
+        var heightRatio = (maxCost === minCost) ? 0.5 : (r.cost - minCost) / (maxCost - minCost)
+        var podiumH = Math.round(60 + heightRatio * 70)
+
+        // Tag ribbon color per affordability
+        var tagColor  = canAfford ? '#e8f5e9' : '#fce4ec'
+        var tagBorder = canAfford ? '#4caf50' : '#e57373'
+        var tagText   = canAfford ? '#1b5e20' : '#b71c1c'
+
+        var podium = document.createElement('div')
+        podium.className = 'podium-item' + (canAfford ? ' can-afford' : ' locked') + (isWished ? ' wished' : '')
+        podium.style.setProperty('--ph', podiumH + 'px')
+        podium.setAttribute('data-id', r.id)
+        podium.setAttribute('data-name', r.name)
+        podium.setAttribute('data-cost', r.cost)
+
+        var tagHtml = '<div class="prize-tag" style="background:' + tagColor + ';border-color:' + tagBorder + ';color:' + tagText + ';">' +
+            '<div class="tag-string"></div>' +
+            '<div class="tag-body">' +
+                '<div class="tag-name">' + escapeHtml(r.name) + '</div>' +
+                '<div class="tag-cost">' + r.cost + ' pts</div>' +
+                (isWished ? '<div class="tag-wish">⭐ Wished!</div>' : '') +
+            '</div>' +
+            '<div class="tag-hole"></div>' +
+        '</div>'
+
+        var btnHtml = canAfford
+            ? '<button class="podium-redeem-btn" onclick="redeemReward(\'' + r.id + '\',\'' + r.name.replace(/'/g,"\\'") + '\',' + r.cost + ')">🎉 Redeem!</button>'
+            : '<div class="podium-locked">🔒 ' + (r.cost - totalPoints) + ' more</div>'
+
+        podium.innerHTML =
+            tagHtml +
+            '<div class="podium-block">' +
+                '<div class="podium-face-top"></div>' +
+                '<div class="podium-face-front">' + btnHtml + '</div>' +
+                '<div class="podium-face-side"></div>' +
+            '</div>'
+
+        stage.appendChild(podium)
+    })
+
+    container.appendChild(stage)
 }
 
 function redeemReward(rewardId, name, cost) {
     if (!currentChild) return
     var d = getDB()
     if (!d) return
-    if (currentChild.points < cost) return alert("Not enough points!")
+    if (currentChild.points < cost) return alert('Not enough points!')
 
     var newPts = currentChild.points - cost
+
+    // Update points
     d.collection('children').doc(currentChild.id).update({ points: newPts }).then(function() {
         currentChild.points = newPts
-        alert('🎉 Redeemed: ' + name + '!\nShow this to your parent.')
-        var shop = document.getElementById('reward-shop')
+
+        // Add redeemed reward to wishlist so parent can see what was claimed
+        d.collection('children').doc(currentChild.id).get().then(function(doc) {
+            if (!doc.exists) return
+            var wishlist = doc.data().wishlist || []
+            var alreadyThere = wishlist.some(function(w) { return w.toLowerCase().trim() === name.toLowerCase().trim() })
+            if (!alreadyThere && wishlist.length < 5) {
+                wishlist.push(name)
+                d.collection('children').doc(currentChild.id).update({ wishlist: wishlist })
+            }
+        })
+
+        var shop   = document.getElementById('reward-shop')
         var totalEl = document.getElementById('result-total-points')
         if (totalEl) totalEl.textContent = 'Total points: ' + newPts + ' 🌟'
-        loadRewardShop(shop, newPts)
+
+        // Animate the redeemed podium before refreshing
+        var podium = document.querySelector('.podium-item[data-id="' + rewardId + '"]')
+        if (podium) {
+            podium.classList.add('redeemed')
+            setTimeout(function() { loadRewardShop(shop, newPts) }, 700)
+        } else {
+            loadRewardShop(shop, newPts)
+        }
     })
 }
 
@@ -536,6 +659,7 @@ function loadDashboard() {
     if (!parentUID) { shiftPage('5'); return }
     loadDashChildren()
     loadDashRewards()
+    loadDashWishlists()
     loadGameSettingsFromDB()
     applySettingsToUI()
 }
@@ -639,6 +763,176 @@ function deleteReward(rewardId) {
     if (!d) return
     if (!confirm('Delete this reward?')) return
     d.collection('rewards').doc(rewardId).delete().then(loadDashRewards)
+}
+
+// ─────────────────────────────────────────────
+//  LUNCHBOX WISHLIST
+// ─────────────────────────────────────────────
+var wishlistDraft = []   // items being edited in the modal
+
+function openWishlistModal() {
+    if (!currentChild) {
+        alert('No child profile selected. Please pick a child first!')
+        return
+    }
+    // Load existing wishlist from Firestore (or empty)
+    wishlistDraft = []
+    var d = getDB()
+    if (d && currentChild) {
+        d.collection('children').doc(currentChild.id).get().then(function(doc) {
+            if (doc.exists && doc.data().wishlist) {
+                wishlistDraft = doc.data().wishlist.slice()
+            }
+            renderWishlistModal()
+            document.getElementById('wishlist-modal').style.display = 'flex'
+        }).catch(function() {
+            renderWishlistModal()
+            document.getElementById('wishlist-modal').style.display = 'flex'
+        })
+    } else {
+        renderWishlistModal()
+        document.getElementById('wishlist-modal').style.display = 'flex'
+    }
+}
+
+function closeWishlistModal() {
+    document.getElementById('wishlist-modal').style.display = 'none'
+    wishlistDraft = []
+}
+
+function renderWishlistModal() {
+    var listEl    = document.getElementById('wishlist-items')
+    var addRow    = document.getElementById('wishlist-add-row')
+    var fullMsg   = document.getElementById('wishlist-full-msg')
+    var input     = document.getElementById('wishlist-input')
+    listEl.innerHTML = ''
+
+    if (wishlistDraft.length === 0) {
+        listEl.innerHTML = '<p class="hint" style="font-style:italic;">No wishes yet — add something!</p>'
+    } else {
+        wishlistDraft.forEach(function(item, i) {
+            var row = document.createElement('div')
+            row.className = 'wishlist-item'
+            row.innerHTML =
+                '<span class="wishlist-item-text">🍽️ ' + escapeHtml(item) + '</span>' +
+                '<button class="wishlist-remove" onclick="removeWishlistItem(' + i + ')" title="Remove">✕</button>'
+            listEl.appendChild(row)
+        })
+    }
+
+    var full = wishlistDraft.length >= 5
+    if (addRow)  addRow.style.display  = full ? 'none' : 'flex'
+    if (fullMsg) fullMsg.style.display = full ? 'block' : 'none'
+    if (input)   input.value = ''
+}
+
+function addWishlistItem() {
+    var input = document.getElementById('wishlist-input')
+    var val = input.value.trim()
+    if (!val) return
+    if (wishlistDraft.length >= 5) return
+    wishlistDraft.push(val)
+    renderWishlistModal()
+}
+
+// Allow pressing Enter in the wishlist input
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && document.getElementById('wishlist-modal').style.display !== 'none') {
+        addWishlistItem()
+    }
+})
+
+function removeWishlistItem(index) {
+    wishlistDraft.splice(index, 1)
+    renderWishlistModal()
+}
+
+function saveWishlist() {
+    if (!currentChild) return closeWishlistModal()
+    var d = getDB()
+    if (d) {
+        d.collection('children').doc(currentChild.id).update({ wishlist: wishlistDraft }).then(function() {
+            closeWishlistModal()
+            alert('🎉 Wishlist saved! Your parent will see it.')
+        }).catch(function() {
+            closeWishlistModal()
+            alert('Saved locally! (Could not reach server.)')
+        })
+    } else {
+        closeWishlistModal()
+        alert('🎉 Wishlist saved!')
+    }
+}
+
+// ── Dashboard: load all children's wishlists ──
+function loadDashWishlists() {
+    var d = getDB()
+    if (!d) return
+    var container = document.getElementById('dash-wishlists')
+    if (!container) return
+    container.innerHTML = '<p class="hint">Loading...</p>'
+
+    d.collection('children').where('parentUID', '==', parentUID).orderBy('name').get()
+        .then(function(snap) {
+            container.innerHTML = ''
+            if (snap.empty) {
+                container.innerHTML = '<p class="hint">No children yet.</p>'
+                return
+            }
+            var anyWishes = false
+            snap.forEach(function(doc) {
+                var c = doc.data()
+                var wishes = c.wishlist || []
+                var block = document.createElement('div')
+                block.className = 'dash-wishlist-child'
+                var nameEl = document.createElement('div')
+                nameEl.className = 'dash-wishlist-name'
+                nameEl.textContent = '👦 ' + c.name + ' (' + wishes.length + '/5)'
+                block.appendChild(nameEl)
+
+                var listEl = document.createElement('div')
+                listEl.className = 'dash-wishlist-list'
+                if (wishes.length === 0) {
+                    listEl.innerHTML = '<span class="dash-wishlist-empty">No wishes yet!</span>'
+                } else {
+                    anyWishes = true
+                    wishes.forEach(function(item, i) {
+                        var row = document.createElement('div')
+                        row.className = 'dash-wishlist-entry'
+                        row.id = 'wentry-' + doc.id + '-' + i
+                        row.innerHTML =
+                            '<span class="dash-wishlist-entry-text">🍽️ ' + escapeHtml(item) + '</span>' +
+                            '<button class="dash-wishlist-done" onclick="markWishDone(\'' + doc.id + '\',' + i + ')">✓ Done</button>'
+                        listEl.appendChild(row)
+                    })
+                }
+                block.appendChild(listEl)
+                container.appendChild(block)
+            })
+        }).catch(function(e) {
+            container.innerHTML = '<p class="hint">Error: ' + e.message + '</p>'
+        })
+}
+
+function markWishDone(childId, index) {
+    // Visually mark as done, then remove from the wishlist array in Firestore
+    var d = getDB()
+    if (!d) return
+    var entryEl = document.getElementById('wentry-' + childId + '-' + index)
+    if (entryEl) entryEl.classList.add('done')
+
+    d.collection('children').doc(childId).get().then(function(doc) {
+        if (!doc.exists) return
+        var wishes = doc.data().wishlist || []
+        wishes.splice(index, 1)
+        return d.collection('children').doc(childId).update({ wishlist: wishes })
+    }).then(function() {
+        setTimeout(loadDashWishlists, 600)   // refresh after short delay so animation is seen
+    }).catch(function() {})
+}
+
+function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
 
 // ─────────────────────────────────────────────

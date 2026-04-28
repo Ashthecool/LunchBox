@@ -90,30 +90,203 @@ body {
 #game-container canvas { border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,.15); display: block; }
 
 /* ── Page 4 — end screen ── */
-.end-screen { text-align: center; width: 100%; max-width: 480px; }
+.end-screen { text-align: center; width: 100%; max-width: 540px; }
 .end-screen h1 { font-size: clamp(1.6rem,5vw,2.2rem); color: #3a2a1a; }
 .end-screen h2 { color: #5a3e2b; margin: 6px 0; }
 .end-screen h3 { color: #b07030; margin-bottom: 12px; }
 
+/* ── Podium Market ── */
 .reward-shop { width: 100%; margin: 10px 0 16px; }
-.reward-shop h2 { font-size: 1.1rem; margin-bottom: 8px; color: #3a2a1a; }
 
-.reward-card {
-    display: flex; align-items: center; gap: 10px;
-    background: #fff8f0; border: 2px solid #c8a87a;
-    border-radius: 12px; padding: 10px 14px; margin-bottom: 8px;
-    flex-wrap: wrap;
+.shop-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; padding: 0 4px;
 }
-.reward-card.locked { opacity: .6; border-color: #ddd; background: #f5f5f5; }
-.reward-name { flex: 1; font-weight: bold; color: #3a2a1a; text-align: left; }
-.reward-cost { font-size: .9rem; color: #8a6a4a; background: #f0dfc0; padding: 3px 10px; border-radius: 20px; }
-.redeem-btn {
-    background: #4caf50; color: #fff; border: none; padding: 6px 14px;
-    border-radius: 20px; cursor: pointer; font-family: inherit; font-size: .9rem;
-    transition: background .15s;
+.shop-title {
+    font-size: 1.05rem; font-weight: bold; color: #3a2a1a;
+    font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
 }
-.redeem-btn:hover { background: #388e3c; }
-.reward-locked { font-size: .82rem; color: #b07030; }
+.shop-pts-badge {
+    background: #fff3cd; border: 1.5px solid #f0c040;
+    border-radius: 20px; padding: 3px 12px;
+    font-size: .85rem; color: #7a5000; font-weight: bold;
+}
+
+.podium-stage {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 4px 0;
+    min-height: 220px;
+    overflow-x: auto;
+}
+
+/* Each podium item: tag above, block below */
+.podium-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 80px;
+    max-width: 130px;
+    cursor: default;
+    transition: transform .2s cubic-bezier(.4,0,.2,1);
+}
+.podium-item.can-afford { cursor: pointer; }
+.podium-item.can-afford:hover { transform: translateY(-6px) scale(1.03); }
+.podium-item.redeemed { animation: podiumPop .6s ease forwards; }
+@keyframes podiumPop {
+    0%   { transform: scale(1); opacity: 1; }
+    40%  { transform: scale(1.18) rotate(-3deg); opacity: 1; }
+    100% { transform: scale(0) rotate(10deg); opacity: 0; }
+}
+
+/* ── Prize Tag ── */
+.prize-tag {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2px;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,.18));
+}
+.tag-string {
+    width: 2px;
+    height: 18px;
+    background: repeating-linear-gradient(
+        to bottom,
+        #8B6914 0px, #8B6914 3px,
+        #c8a84a 3px, #c8a84a 6px
+    );
+    margin-bottom: 0;
+}
+.tag-body {
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 8px 8px 8px 8px;
+    padding: 7px 10px 8px;
+    text-align: center;
+    position: relative;
+    min-width: 70px;
+    background: inherit;
+}
+.tag-hole {
+    width: 8px; height: 8px;
+    background: white;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    position: absolute;
+    top: 6px; left: 50%; transform: translateX(-50%);
+    opacity: .5;
+}
+.tag-name {
+    font-size: .78rem;
+    font-weight: bold;
+    color: inherit;
+    line-height: 1.25;
+    margin-bottom: 3px;
+    word-break: break-word;
+}
+.tag-cost {
+    font-size: .82rem;
+    font-weight: bold;
+    color: inherit;
+    opacity: .85;
+}
+.tag-wish {
+    font-size: .68rem;
+    margin-top: 3px;
+    color: #5a3e2b;
+    background: rgba(255,200,0,.3);
+    border-radius: 4px;
+    padding: 1px 4px;
+}
+
+/* Wished items get a sparkle border */
+.podium-item.wished .prize-tag {
+    filter: drop-shadow(0 0 6px rgba(255,200,0,.7)) drop-shadow(0 3px 6px rgba(0,0,0,.18));
+}
+
+/* ── 3D Podium Block ── */
+.podium-block {
+    width: 100%;
+    position: relative;
+    height: var(--ph);
+    display: flex;
+    flex-direction: column;
+}
+.podium-face-top {
+    width: 100%;
+    height: 12px;
+    background: linear-gradient(90deg, #d4a84a, #f0c870, #d4a84a);
+    border-radius: 6px 6px 0 0;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,.4);
+    flex-shrink: 0;
+}
+.podium-face-front {
+    flex: 1;
+    background: linear-gradient(160deg, #c8924a 0%, #a06030 60%, #8a4e24 100%);
+    border-radius: 0 0 6px 6px;
+    box-shadow: inset -4px 0 10px rgba(0,0,0,.2), inset 0 -4px 8px rgba(0,0,0,.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 4px;
+    position: relative;
+    overflow: hidden;
+}
+/* wood grain lines */
+.podium-face-front::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+        175deg,
+        transparent 0px, transparent 8px,
+        rgba(0,0,0,.06) 8px, rgba(0,0,0,.06) 9px
+    );
+}
+.podium-face-side {
+    position: absolute;
+    right: -8px; top: 12px; bottom: 0;
+    width: 8px;
+    background: linear-gradient(90deg, #7a3c1c, #5a2c10);
+    border-radius: 0 0 4px 0;
+    box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+}
+
+/* Locked style */
+.podium-item.locked .podium-face-top { background: linear-gradient(90deg, #b0a090, #d0c0b0, #b0a090); }
+.podium-item.locked .podium-face-front {
+    background: linear-gradient(160deg, #9a8a7a 0%, #7a6a5a 60%, #6a5a4a 100%);
+}
+.podium-item.locked .podium-face-side { background: linear-gradient(90deg, #5a4a3a, #4a3a2a); }
+.podium-item.locked .tag-body { filter: grayscale(.4); }
+
+/* Redeem button ON the podium */
+.podium-redeem-btn {
+    position: relative; z-index: 1;
+    background: #fff8f0;
+    border: 2px solid #f0a030;
+    border-radius: 10px;
+    padding: 5px 8px;
+    font-family: inherit; font-size: .72rem;
+    font-weight: bold; color: #5a2c00;
+    cursor: pointer;
+    transition: background .12s, transform .1s;
+    text-align: center;
+    line-height: 1.3;
+    word-break: break-word;
+}
+.podium-redeem-btn:hover { background: #ffe8cc; transform: scale(1.07); }
+.podium-redeem-btn:active { transform: scale(.95); }
+
+.podium-locked {
+    position: relative; z-index: 1;
+    font-size: .68rem; color: rgba(255,240,220,.8);
+    text-align: center; line-height: 1.3;
+    word-break: break-word;
+}
 
 /* ── Page 5 — auth ── */
 .auth-wrap {
@@ -143,6 +316,25 @@ body {
     border: 1px solid #e57373; border-radius: 8px;
     padding: 8px 14px; font-size: .88rem; width: 100%;
 }
+
+.auth-divider {
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    color: #b0906a; font-size: .82rem;
+}
+.auth-divider::before, .auth-divider::after {
+    content: ''; flex: 1; height: 1px; background: #d4b890;
+}
+
+.google-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 11px 20px; border: 2px solid #d0c0b0;
+    border-radius: 12px; background: #ffffff; cursor: pointer;
+    font-size: .95rem; font-family: inherit; color: #3a2a1a;
+    transition: background .15s, box-shadow .15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.google-btn:hover { background: #f5f0ea; box-shadow: 0 2px 8px rgba(0,0,0,.13); }
+.google-btn:active { transform: scale(.98); }
 
 /* ── Page 6 — dashboard ── */
 .dashboard {
@@ -387,3 +579,67 @@ body {
     z-index: 10;
     transition: opacity .15s;
 }
+
+/* ── Wishlist button (end screen) ── */
+.wishlist-btn {
+    padding: 10px 24px; border: 2px dashed #a06030;
+    border-radius: 12px; background: #fff8f0; cursor: pointer;
+    font-size: 1rem; font-family: inherit; color: #5a3e2b;
+    transition: background .15s, transform .1s;
+    margin-bottom: 4px;
+}
+.wishlist-btn:hover { background: #ffe8cc; }
+.wishlist-btn:active { transform: scale(.97); }
+
+/* ── Modal ── */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.modal-box {
+    background: #fff8f0; border: 2.5px solid #c8a87a;
+    border-radius: 20px; padding: 24px 20px;
+    width: 100%; max-width: 380px;
+    display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.18);
+}
+.modal-box h2 { color: #3a2a1a; font-size: 1.25rem; }
+
+/* ── Wishlist items (modal) ── */
+.wishlist-items { display: flex; flex-direction: column; gap: 7px; }
+.wishlist-item {
+    display: flex; align-items: center; gap: 8px;
+    background: #f5ece0; border: 1.5px solid #d4b890;
+    border-radius: 10px; padding: 8px 12px;
+}
+.wishlist-item-text { flex: 1; color: #3a2a1a; font-size: .95rem; }
+.wishlist-remove {
+    background: none; border: none; color: #c0392b;
+    font-size: 1rem; cursor: pointer; padding: 2px 6px;
+    border-radius: 6px; transition: background .12s;
+}
+.wishlist-remove:hover { background: #fdecea; }
+
+/* ── Dashboard wishlist ── */
+.dash-wishlists { display: flex; flex-direction: column; gap: 14px; }
+.dash-wishlist-child { border-bottom: 1px solid #eee; padding-bottom: 12px; }
+.dash-wishlist-child:last-child { border-bottom: none; padding-bottom: 0; }
+.dash-wishlist-name { font-weight: bold; color: #5a3e2b; margin-bottom: 7px; font-size: .95rem; }
+.dash-wishlist-list { display: flex; flex-direction: column; gap: 5px; }
+.dash-wishlist-entry {
+    display: flex; align-items: center; gap: 8px;
+    background: #f5ece0; border: 1.5px solid #d4b890;
+    border-radius: 8px; padding: 6px 12px;
+}
+.dash-wishlist-entry-text { flex: 1; color: #3a2a1a; font-size: .9rem; }
+.dash-wishlist-done {
+    background: none; border: 1.5px solid #4caf50; color: #2d8a2d;
+    border-radius: 6px; padding: 3px 10px; font-size: .8rem;
+    font-family: inherit; cursor: pointer; transition: background .12s;
+}
+.dash-wishlist-done:hover { background: #d4f0d4; }
+.dash-wishlist-entry.done .dash-wishlist-entry-text { text-decoration: line-through; color: #9a8a7a; }
+.dash-wishlist-empty { color: #9a7a5a; font-size: .88rem; font-style: italic; }
