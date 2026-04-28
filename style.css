@@ -378,3 +378,12 @@ body {
 .quiz-streak {
     font-size: .88rem; color: #b07030; min-height: 20px;
 }
+
+.back-btn {
+    position: fixed; top: 12px; left: 12px;
+    padding: 6px 14px; background: #fff8f0; border: 2px solid #c8a87a;
+    border-radius: 12px; font-size: .9rem; color: #3a2a1a;
+    cursor: pointer; transition: background .15s;
+    z-index: 10;
+    transition: opacity .15s;
+}
