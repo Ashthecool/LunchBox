@@ -106,6 +106,7 @@ function cheatLogin() {
 }
 
 function cheatChild() {
+    parentUID = 'dev-cheat-uid'
     currentChild = { id: 'dev-child-id', name: 'Dev Kid', points: 50 }
     shiftPage('7')
 }
@@ -167,14 +168,18 @@ function applySettingsToUI() {
 // ─────────────────────────────────────────────
 function loadChildList() {
     var d = getDB()
-    if (!d) return
+    if (!d || !parentUID) {
+        var container = document.getElementById('child-list')
+        container.innerHTML = '<p class="hint">Please log in as a parent first!</p>'
+        return
+    }
     var container = document.getElementById('child-list')
     container.innerHTML = '<p>Loading...</p>'
 
-    d.collection('children').orderBy('name').get().then(function(snap) {
+    d.collection('children').where('parentUID', '==', parentUID).orderBy('name').get().then(function(snap) {
         container.innerHTML = ''
         if (snap.empty) {
-            container.innerHTML = '<p class="hint">No children yet — ask a parent to add you!</p>'
+            container.innerHTML = '<p class="hint">No children yet — add one in the parent dashboard!</p>'
             return
         }
         snap.forEach(function(doc) {
@@ -183,7 +188,7 @@ function loadChildList() {
             btn.className = 'child-btn'
             btn.innerHTML = '<span class="child-name">' + data.name + '</span><span class="child-pts">' + (data.points || 0) + ' pts</span>'
             btn.onclick = function() {
-                currentChild = { id: doc.id, name: data.name, points: data.points || 0 }
+                currentChild = { id: doc.id, name: data.name, points: data.points || 0, parentUID: parentUID }
                 shiftPage('7')
             }
             container.appendChild(btn)
@@ -481,9 +486,9 @@ function loadRewardShop(container, totalPoints) {
     container.innerHTML = ''
 
     var d = getDB()
-    if (!d) return
+    if (!d || !currentChild || !currentChild.parentUID) return
 
-    d.collection('rewards').orderBy('cost').get().then(function(snap) {
+    d.collection('rewards').where('parentUID', '==', currentChild.parentUID).orderBy('cost').get().then(function(snap) {
         if (snap.empty) {
             container.innerHTML = '<p class="hint">No rewards yet — ask a parent to add some!</p>'
             return
