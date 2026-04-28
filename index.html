@@ -39,7 +39,43 @@
         </div>
     </div>
 
-    <!-- PAGE 3: Game -->
+    <!-- PAGE 7: Game picker -->
+    <div class="page" id="page7">
+        <div class="game-picker-wrap">
+            <h1 id="game-picker-greeting">What do you want to play? 🎮</h1>
+            <div class="game-card-row">
+                <div class="game-card" id="game-card-fruit" onclick="selectGame('fruit')">
+                    <div class="game-card-emoji">🍎</div>
+                    <div class="game-card-title">Fruit Catcher</div>
+                    <div class="game-card-desc">Catch the falling fruit! Avoid the rotten ones!</div>
+                </div>
+                <div class="game-card" id="game-card-quiz" onclick="selectGame('quiz')">
+                    <div class="game-card-emoji">🧠</div>
+                    <div class="game-card-title">Quiz Time!</div>
+                    <div class="game-card-desc">Answer 5 questions and earn points!</div>
+                </div>
+            </div>
+            <h1 class="start back-btn" onmousedown="shiftPage('2')">← Back</h1>
+        </div>
+    </div>
+
+    <!-- PAGE 8: Quiz topic picker -->
+    <div class="page" id="page8">
+        <div class="topic-picker-wrap">
+            <h1>Pick a topic! 📚</h1>
+            <div class="topic-grid" id="topic-grid"></div>
+            <h1 class="start back-btn" onmousedown="shiftPage('7')">← Back</h1>
+        </div>
+    </div>
+
+    <!-- PAGE 9: Quiz game -->
+    <div class="page" id="page9">
+        <div class="quiz-wrap" id="quiz-wrap">
+            <!-- Dynamically filled -->
+        </div>
+    </div>
+
+    <!-- PAGE 3: Fruit Game -->
     <div class="page" id="page3">
         <div id="game-container"></div>
     </div>
@@ -89,6 +125,45 @@
                 <div class="add-row">
                     <input type="text" id="new-child-name" placeholder="Child's name">
                     <button class="auth-btn" onclick="addChild()">Add Child</button>
+                </div>
+            </div>
+
+            <!-- Game Settings section -->
+            <div class="dash-section">
+                <h2>Game Settings ⚙️</h2>
+                <p class="hint" style="margin-bottom:12px;">Choose which games children can play and the default quiz topic.</p>
+                <div class="setting-row">
+                    <label class="setting-label">Allowed Games</label>
+                    <div class="setting-toggles">
+                        <label class="toggle-chip">
+                            <input type="checkbox" id="allow-fruit" checked onchange="saveGameSettings()"> 🍎 Fruit Catcher
+                        </label>
+                        <label class="toggle-chip">
+                            <input type="checkbox" id="allow-quiz" checked onchange="saveGameSettings()"> 🧠 Quiz
+                        </label>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <label class="setting-label">Default Quiz Topic</label>
+                    <select id="default-topic" class="setting-select" onchange="saveGameSettings()">
+                        <option value="auto">🎲 Auto (random)</option>
+                        <option value="animals">🦁 Animals</option>
+                        <option value="science">🧪 Science</option>
+                        <option value="geography">🗺️ Geography</option>
+                        <option value="food">🍔 Food</option>
+                        <option value="sports">🏆 Sports</option>
+                        <option value="math">➕ Math</option>
+                        <option value="english">✏️ English</option>
+                        <option value="literature">📖 Literature</option>
+                        <option value="fantasy">🐉 Fantasy</option>
+                        <option value="languages">💬 Other Languages</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label class="setting-label">Let child pick topic?</label>
+                    <label class="toggle-chip">
+                        <input type="checkbox" id="child-pick-topic" checked onchange="saveGameSettings()"> Yes, child can choose
+                    </label>
                 </div>
             </div>
 

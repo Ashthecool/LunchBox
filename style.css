@@ -204,3 +204,177 @@ body {
     transition: color .15s, border-color .15s;
 }
 .cheat-btn:hover { color: #666; border-color: #666; }
+
+/* ── Game Settings (dashboard) ── */
+.setting-row {
+    display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap;
+    padding: 10px 0; border-bottom: 1px solid #eee;
+}
+.setting-row:last-child { border-bottom: none; padding-bottom: 0; }
+.setting-label {
+    font-weight: bold; color: #5a3e2b; font-size: .9rem;
+    min-width: 130px; padding-top: 4px;
+}
+.setting-toggles { display: flex; gap: 8px; flex-wrap: wrap; }
+.toggle-chip {
+    display: flex; align-items: center; gap: 6px;
+    background: #f0dfc0; border: 1.5px solid #c8a87a; border-radius: 20px;
+    padding: 5px 14px; font-size: .88rem; color: #3a2a1a; cursor: pointer;
+    transition: background .15s;
+}
+.toggle-chip:hover { background: #ffe8cc; }
+.toggle-chip input[type="checkbox"] { accent-color: #a06030; cursor: pointer; }
+.setting-select {
+    padding: 6px 12px; border: 1.5px solid #c8a87a; border-radius: 10px;
+    font-size: .9rem; font-family: inherit; background: #fffaf5;
+    color: #3a2a1a; outline: none; cursor: pointer;
+}
+
+/* ── Page 7 — game picker ── */
+.game-picker-wrap {
+    text-align: center; width: 100%; max-width: 520px;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+}
+.game-picker-wrap h1 { color: #3a2a1a; font-size: clamp(1.3rem,4vw,1.8rem); }
+
+.game-card-row {
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: 100%;
+}
+
+.game-card {
+    flex: 1; min-width: 140px; max-width: 210px;
+    background: #fff8f0; border: 2.5px solid #c8a87a;
+    border-radius: 18px; padding: 24px 16px;
+    cursor: pointer; text-align: center;
+    transition: background .15s, transform .15s, border-color .15s, box-shadow .15s;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+.game-card:hover {
+    background: #ffe8cc; border-color: #a06030;
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 8px 20px rgba(0,0,0,.13);
+}
+.game-card:active { transform: scale(.97); }
+.game-card.disabled {
+    opacity: .38; cursor: not-allowed; pointer-events: none;
+}
+
+.game-card-emoji { font-size: 2.8rem; margin-bottom: 8px; }
+.game-card-title { font-size: 1.1rem; font-weight: bold; color: #3a2a1a; margin-bottom: 6px; }
+.game-card-desc  { font-size: .82rem; color: #7a5a3a; line-height: 1.4; }
+
+/* ── Page 8 — topic picker ── */
+.topic-picker-wrap {
+    text-align: center; width: 100%; max-width: 480px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.topic-picker-wrap h1 { color: #3a2a1a; }
+
+.topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px; width: 100%;
+}
+
+.topic-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 18px 10px; background: #fff8f0;
+    border: 2px solid #c8a87a; border-radius: 16px;
+    cursor: pointer; font-family: inherit;
+    transition: background .15s, transform .15s, box-shadow .15s;
+    box-shadow: 0 2px 6px rgba(0,0,0,.06);
+}
+.topic-btn:hover {
+    background: #ffe8cc; border-color: #a06030;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,.12);
+}
+.topic-btn:active { transform: scale(.96); }
+.topic-emoji { font-size: 2rem; }
+.topic-label { font-size: .85rem; font-weight: bold; color: #3a2a1a; }
+.topic-btn.surprise { border-style: dashed; background: #f0e8ff; border-color: #9060c8; }
+.topic-btn.surprise:hover { background: #e0d0ff; border-color: #6030a0; }
+.topic-btn.surprise .topic-label { color: #5030a0; }
+
+/* ── Page 9 — quiz ── */
+.quiz-wrap {
+    width: 100%; max-width: 480px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+
+.quiz-header {
+    width: 100%; display: flex; align-items: center;
+    justify-content: space-between; gap: 8px;
+}
+.quiz-topic-badge {
+    font-size: .82rem; background: #f0dfc0; border: 1.5px solid #c8a87a;
+    border-radius: 20px; padding: 3px 12px; color: #5a3e2b;
+}
+.quiz-progress { font-size: .82rem; color: #8a6a4a; }
+.quiz-score-badge {
+    font-size: .82rem; background: #d4f0d4; border: 1.5px solid #70b870;
+    border-radius: 20px; padding: 3px 12px; color: #2a6a2a;
+}
+
+.quiz-progress-bar-wrap {
+    width: 100%; background: #e0d5c5; border-radius: 10px; height: 10px; overflow: hidden;
+}
+.quiz-progress-bar {
+    height: 100%; background: linear-gradient(90deg, #f0a030, #e06010);
+    border-radius: 10px;
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+}
+
+.quiz-question {
+    width: 100%; background: #fff8f0; border: 2px solid #c8a87a;
+    border-radius: 16px; padding: 20px;
+    text-align: center; font-size: clamp(1rem,3.5vw,1.2rem);
+    color: #3a2a1a; line-height: 1.45; min-height: 80px;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.quiz-options {
+    width: 100%; display: flex; flex-direction: column; gap: 9px;
+}
+
+.quiz-option {
+    width: 100%; padding: 13px 18px;
+    background: #fff8f0; border: 2px solid #c8a87a;
+    border-radius: 12px; font-family: inherit; font-size: .97rem;
+    color: #3a2a1a; cursor: pointer; text-align: left;
+    transition: background .12s, border-color .12s, transform .1s;
+}
+.quiz-option:hover:not(:disabled) {
+    background: #ffe8cc; border-color: #a06030; transform: translateX(3px);
+}
+.quiz-option:active:not(:disabled) { transform: scale(.98); }
+.quiz-option.correct {
+    background: #d4f0d4 !important; border-color: #4caf50 !important;
+    color: #1a5a1a;
+}
+.quiz-option.wrong {
+    background: #fde8e8 !important; border-color: #e57373 !important;
+    color: #7a1a1a;
+}
+.quiz-option:disabled { cursor: default; }
+
+.quiz-feedback {
+    font-size: 1.1rem; font-weight: bold; min-height: 28px;
+    transition: opacity .2s;
+}
+.quiz-feedback.correct { color: #2d8a2d; }
+.quiz-feedback.wrong   { color: #c0392b; }
+
+.quiz-next-btn {
+    padding: 12px 36px; background: #fff8f0;
+    border: 2px solid #5a3e2b; border-radius: 12px;
+    font-family: inherit; font-size: 1rem; color: #3a2a1a;
+    cursor: pointer; transition: background .15s;
+    display: none;
+}
+.quiz-next-btn:hover { background: #ffe8cc; }
+.quiz-next-btn.visible { display: block; }
+
+.quiz-streak {
+    font-size: .88rem; color: #b07030; min-height: 20px;
+}
